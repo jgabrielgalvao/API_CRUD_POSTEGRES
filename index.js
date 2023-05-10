@@ -10,12 +10,16 @@ app.listen(8080, () => {
     console.log("O servidor está de pé na porta 8080")
 });
 
+app.get("/", (req, res) =>{
+    res.send('SEJA BEM VINDO AO SITE CRUD COM POSTEGRES')
+})
+
 app.post("/login", async (req, res) => {
     const { email, senha } = req.body;
 
     const client = await pool.connect();
 
-    const encontraUser = await client.query(`SELECT * FROM usuarios WHERE email = ' ${ email } '`);
+    const encontraUser = await client.query(`SELECT * FROM usuarios WHERE email =  ${ email } and senha =  ${ senha }`);
     if (!encontraUser) {
         return res.status(401).json({ error: 'usuário não encontrado' });
     }
@@ -58,7 +62,7 @@ app.post("/users", async (req, res) => {
             return res.status(401).send("Informe o nome, email e senha.")
         }
 
-        const user = await client.query(`SELECT * FROM usuarios where id=${id}`);
+        const user = await client.query(`SELECT * FROM usuarios where id = ${id}`);
         if (user.rows.length === 0) {
             await client.query(`INSERT INTO usuarios(id, nome, email, senha) values ('${id}', '${nome}', '${email}', '${senha}')`)
             res.status(200).send({
